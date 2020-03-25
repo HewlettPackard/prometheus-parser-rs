@@ -3,6 +3,8 @@ name = "prometheus-parser"
 version = "0.3.1"
 authors = ["Tim Buckley <timothy.jas.buckley@hpe.com>"]
 edition = "2018"
+license = "MIT"
+keywords = ["parser", "prometheus", "pest"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
