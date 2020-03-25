@@ -1,0 +1,22 @@
+[package]
+name = "prometheus-parser"
+version = "0.3.1"
+authors = ["Tim Buckley <timothy.jas.buckley@hpe.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pest = "2.1"
+pest_derive = "2.1"
+pest_consume = "1.0"
+pest_consume_macros = "1.0"
+enquote = "1.0"
+lazy_static = "1"
+
+[dev-dependencies]
+maplit = "1"
+
+[lib]
+name = "prometheus_parser"
+path = "src/lib.rs"

@@ -1,0 +1,230 @@
+// (C) Copyright 2019 Hewlett Packard Enterprise Development LP
+
+prometheus = {
+  SOI ~ expression ~ EOI
+}
+
+//
+// notes about whitespace control:
+// pest has some automatic whitespace handling, however prometheus mixes in a
+// few operators with required whitespace (and/or/unless/by/without/offset) at
+// inconvenient places. if we used it, expressions missing whitespace entirely
+// would generally be permitted, e.g. `foo{}offset5m andbar{}`
+// these parse "correctly" but this would mean we validate a superset of the
+// prometheus grammar and could miss blatant syntax errors
+//
+// as a result, we'd have to opt-out of the automatic whitespace control so
+// often that it's simpler to just disable it outright
+//
+// given that, a few rules:
+//  - prefer the ws_req and ws_opt rules to embedded spaces
+//  - generally, all expressions should prefer to consume all leading whitespace
+//    and leave the remaining for subsequent rules
+//  - rules with enclosing characters (groups like "(" and ")", labels, etc )
+//    should consume whitespace before their closing character
+//  - operators must consume whitespace on both sides of their expression
+//    - luckily, no tokens that require leading whitespace are valid root
+//      expressions
+//  - nodes may opt to either allow terminals to consume all whitespace, or may
+//    handle it at the node level - just need to be self-consistent
+//
+
+// subqueries can be attached to most expressions that return a vector
+// (specifically an instant vector, but we don't need to care about that at the
+// syntax level)
+// they also have odd whitespace rules
+subquery_duration = ${ duration_value ~ duration_unit }
+subquery = {
+  ws_opt ~
+  "[" ~ // whitespace specifically not allowed here
+  subquery_duration ~ ws_opt ~ ":" ~
+  (ws_opt ~ subquery_duration)? ~
+  ws_opt ~
+  "]"
+}
+
+//
+// various selector bits
+//
+
+// metric name
+selector_metric = @{ ws_opt ~ (ASCII_ALPHANUMERIC | "_" | ":")+ }
+
+// metric labels
+label_key = @{ (ASCII_ALPHANUMERIC | "_")+ }
+label_value = @{ string }
+label_op_not_equal = ${ "!=" }
+label_op_regex_equal = ${ "=~" }
+label_op_regex_not_equal = ${ "!~" }
+label_op_equal = ${ "=" }
+label_operator = {
+  label_op_not_equal | label_op_regex_equal | 
+  label_op_regex_not_equal | label_op_equal
+}
+label = { ws_opt ~ label_key ~ ws_opt ~ label_operator ~ ws_opt ~ label_value }
+selector_label = {
+  ws_opt ~ 
+  "{" ~ 
+  (label ~ (ws_opt ~ "," ~ label)*)? ~ ws_opt ~
+
+  // oddly this seems to be the only place trailing commas are allowed
+  ("," ~ ws_opt)? ~
+  "}"
+}
+
+// oddly prometheus doesn't allow whitespace here
+selector_range = @{ ws_opt ~ "[" ~ duration_value ~ duration_unit ~ "]" }
+
+// a metric selector may optionally have labels
+metric_selector = { selector_metric ~ selector_label? }
+
+offset = ${ duration_value ~ duration_unit }
+offset_clause = _{ ws_req ~ ^"offset" ~ ws_req ~ offset }
+
+//
+// operators
+//
+
+label_key_list = _{
+  "(" ~ ws_opt ~
+  (
+    label_key ~
+    (ws_opt ~ "," ~ ws_opt ~ label_key)* ~ ws_opt
+  )? ~
+  ")"
+}
+
+// foo / ignoring(label_bar) ...
+matching_ignoring = ${ ^"ignoring" }
+matching_on = ${ ^"on" }
+matching_keyword = _{ matching_ignoring | matching_on }
+matching = { ws_opt ~ matching_keyword ~ ws_opt ~ label_key_list ~ ws_req }
+
+// foo / ignoring(label_bar) group_left(label_baz) ...
+matching_group_left = ${ ^"group_left" }
+matching_group_right = ${ ^"group_right" }
+matching_group = {
+  ws_opt ~ 
+  (matching_group_left | matching_group_right) ~ ws_opt ~ 
+  label_key_list?
+}
+
+// annoyingly the PrecClimber needs all the op_* to be top-level within an
+// expression, and we need this to be a child of whichever op_ its attached to
+// ... so, we get to append it to every op :(
+matching_expression = {
+  matching ~ matching_group?
+}
+
+op_equal = ${ ws_opt ~ "==" ~ ws_opt ~ matching_expression? }
+op_not_equal = ${ ws_opt ~ "!=" ~ ws_opt ~ matching_expression? }
+op_less_than_equal = ${ ws_opt ~ "<=" ~ ws_opt ~ matching_expression? }
+op_greater_than_equal = ${ ws_opt ~ ">=" ~ ws_opt ~ matching_expression? }
+op_less_than = ${ ws_opt ~ "<" ~ ws_opt ~ matching_expression? }
+op_greater_than = ${ ws_opt ~ ">" ~ ws_opt ~ matching_expression? }
+
+op_power = ${ ws_opt ~ "^" ~ ws_opt ~ matching_expression? }
+op_multiply = ${ ws_opt ~ "*" ~ ws_opt ~ matching_expression? }
+op_divide = ${ ws_opt ~ "/" ~ ws_opt ~ matching_expression? }
+op_modulo = ${ ws_opt ~ "%" ~ ws_opt ~ matching_expression? }
+op_add = ${ ws_opt ~ "+" ~ ws_opt ~ matching_expression? }
+op_subtract = ${ ws_opt ~ "-" ~ ws_opt ~ matching_expression? }
+
+op_and = ${ ws_req ~ ^"and" ~ ws_req ~ matching_expression? }
+op_unless = ${ ws_req ~ ^"unless" ~ ws_req ~ matching_expression? }
+op_or = ${ ws_req ~ ^"or" ~ ws_req ~ matching_expression? }
+
+operator = _{
+  op_equal | op_not_equal | op_less_than_equal | op_greater_than_equal |
+  op_less_than | op_greater_than |
+
+  op_power |
+  op_multiply | op_divide | op_modulo |
+  op_add | op_subtract |
+
+  op_and | op_unless | op_or
+}
+
+//
+// top-level nodes
+//
+
+selector = {
+  (
+    metric_selector |
+
+    // a bare label selector with no metric name is legal
+    selector_label
+  ) ~
+  
+  // a subquery or range may follow any value selector
+  (subquery | selector_range)? ~
+
+  offset_clause?
+}
+
+function_agg_op_by = ${ ^"by" }
+function_agg_op_without = ${ ^"without" }
+function_agg_op = { function_agg_op_by | function_agg_op_without }
+function_agg_op_args = _{ label_key_list }
+function_agg = { ws_req ~ function_agg_op ~ ws_opt ~ function_agg_op_args }
+
+function_name = @{ (ASCII_ALPHANUMERIC | "_")+ }
+function_args = _{
+  ws_opt ~ "(" ~ (expression ~ (ws_opt ~ "," ~ expression)*)? ~ ws_opt ~ ")"
+}
+
+// prometheus suports several forms of function invocations...
+
+// func_foo(metric_foo) by (label_bar)
+function_agg_a = _{ function_name ~ function_args ~ function_agg }
+
+// func_foo by (label_bar) (metric_foo)
+function_agg_b = _{ function_name ~ function_agg ~ function_args }
+
+// foo(bar)
+function_simple = _{ function_name ~ function_args }
+
+// ... in any case, they all expose the same types of pairs (func name, func 
+// args, optional aggregation bits), albeit in an any order
+function = { (function_agg_a | function_agg_b | function_simple) ~ subquery? }
+
+group = { "(" ~ expression ~ ws_opt ~ ")" ~ subquery? }
+
+// terminal expressions that can exist standalone or on either side of an
+// operator
+expression_term = {
+  ws_opt ~ (group | function | signed_float | string | selector)
+}
+
+expression = {
+  expression_term ~ (operator ~ expression_term)* ~ ws_opt
+}
+
+//
+// misc library stuff
+//
+
+// metric range, values are explicitly integers
+duration_value = ${ ASCII_DIGIT+ }
+duration_unit = ${ "s" | "m" | "h" | "d" | "w" | "y" }
+
+// allow 1, 1.0, -1, -1.0, .1, -.1 but don't allow empty / '.' / '-' / '-.'
+signed_float = @{
+  ("+" | "-")? ~ (
+    ("Inf" | "NaN") |
+    (ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)?) |
+    ("." ~ ASCII_DIGIT+)
+  )
+}
+
+string  = @{ "\"" ~ inner ~ "\"" }
+inner   = @{ (!("\"" | "\\" | "\u{0000}" | "\u{001F}") ~ ANY)* ~ (escape ~ inner)? }
+escape  = @{ "\\" ~ ("b" | "t" | "n" | "f" | "r" | "\"" | "\\" | unicode | NEWLINE)? }
+unicode = @{ "u" ~ ASCII_HEX_DIGIT{4} | "U" ~ ASCII_HEX_DIGIT{8} }
+
+// ugly to include comments here, but oh well
+ws_req = _{ (" " | "\t" | NEWLINE | COMMENT)+ }
+ws_opt = _{ (" " | "\t" | NEWLINE | COMMENT)* }
+
+COMMENT = _{ "#" ~ (!NEWLINE ~ ANY)*}
