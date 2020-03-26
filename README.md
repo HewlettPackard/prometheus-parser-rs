@@ -1,5 +1,7 @@
 # prometheus-parser-rs
 
+[![CircleCI](https://circleci.com/gh/HewlettPackard/prometheus-parser-rs.svg?style=svg)](https://circleci.com/gh/HewlettPackard/prometheus-parser-rs)
+
 prometheus-parser parses arbitrary Prometheus expressions into a syntax tree
 appropriate for syntax checking, linting, and general static analysis. It does
 not depend on a Prometheus server and works entirely offline.
