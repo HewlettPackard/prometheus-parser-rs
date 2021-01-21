@@ -145,6 +145,18 @@ operator = _{
   op_and | op_unless | op_or
 }
 
+op_equal_bool = ${ ws_opt ~ "==" ~ ws_req ~ "bool" ~ ws_req ~ matching_expression? }
+op_not_equal_bool = ${ ws_opt ~ "!=" ~ ws_req ~ "bool" ~ ws_req ~ matching_expression? }
+op_less_than_equal_bool = ${ ws_opt ~ "<=" ~ ws_req ~ "bool" ~ ws_req ~ matching_expression? }
+op_greater_than_equal_bool = ${ ws_opt ~ ">=" ~ ws_req ~ "bool" ~ ws_req ~ matching_expression? }
+op_less_than_bool = ${ ws_opt ~ "<" ~ ws_req ~ "bool" ~ ws_req ~ matching_expression? }
+op_greater_than_bool = ${ ws_opt ~ ">" ~ ws_req ~ "bool" ~ ws_req ~ matching_expression? }
+
+operator_bool = _{
+  op_equal_bool | op_not_equal_bool | op_less_than_equal_bool | op_greater_than_equal_bool |
+  op_less_than_bool | op_greater_than_bool
+}
+
 //
 // top-level nodes
 //
@@ -198,7 +210,7 @@ expression_term = {
 }
 
 expression = {
-  expression_term ~ (operator ~ expression_term)* ~ ws_opt
+  expression_term ~ ((operator_bool | operator) ~ expression_term)* ~ ws_opt
 }
 
 //

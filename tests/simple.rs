@@ -504,3 +504,62 @@ fn parse_weird_floats() -> Result<()> {
 
   Ok(())
 }
+
+#[test]
+fn parse_bool_modifier() -> Result<()> {
+  assert_eq!(
+    parse_expr("foo > bool bar")?,
+    BoolOperator::new(
+      OperatorKind::GreaterThan,
+      Selector::new().metric("foo").span((0, 3)).wrap(),
+      Selector::new().metric("bar").span((11, 14)).wrap()
+    ).span((3, 11)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("foo == bool bar")?,
+    BoolOperator::new(
+      OperatorKind::Equal,
+      Selector::new().metric("foo").span((0, 3)).wrap(),
+      Selector::new().metric("bar").span((12, 15)).wrap()
+    ).span((3, 12)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("foo >= bool bar")?,
+    BoolOperator::new(
+      OperatorKind::GreaterThanEqual,
+      Selector::new().metric("foo").span((0, 3)).wrap(),
+      Selector::new().metric("bar").span((12, 15)).wrap()
+    ).span((3, 12)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("foo <= bool bar")?,
+    BoolOperator::new(
+      OperatorKind::LessThanEqual,
+      Selector::new().metric("foo").span((0, 3)).wrap(),
+      Selector::new().metric("bar").span((12, 15)).wrap()
+    ).span((3, 12)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("foo != bool bar")?,
+    BoolOperator::new(
+      OperatorKind::NotEqual,
+      Selector::new().metric("foo").span((0, 3)).wrap(),
+      Selector::new().metric("bar").span((12, 15)).wrap()
+    ).span((3, 12)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("foo < bool bar")?,
+    BoolOperator::new(
+      OperatorKind::LessThan,
+      Selector::new().metric("foo").span((0, 3)).wrap(),
+      Selector::new().metric("bar").span((11, 14)).wrap()
+    ).span((3, 11)).wrap()
+  );
+
+  Ok(())
+}

@@ -4,7 +4,7 @@ use std::fmt;
 
 use super::function::Function;
 use super::group::Group;
-use super::operator::Operator;
+use super::operator::{Operator, BoolOperator};
 use super::return_value::{LabelSetOp, ReturnKind, ReturnValue};
 use super::selector::Selector;
 
@@ -32,7 +32,10 @@ pub enum Expression {
   Function(Function),
 
   /// A binary operator expression
-  Operator(Operator)
+  Operator(Operator),
+
+  /// A binary operator expression that returns a boolean value
+  BoolOperator(BoolOperator)
 }
 
 // For handling groups when testing
@@ -59,7 +62,8 @@ impl Expression {
       Expression::Selector(s) => s.return_value(),
       Expression::Group(g) => g.return_value(),
       Expression::Function(f) => f.return_value(),
-      Expression::Operator(o) => o.return_value()
+      Expression::Operator(o) => o.return_value(),
+      Expression::BoolOperator(bo) => bo.return_value(),
     }
   }
 
@@ -98,6 +102,7 @@ impl fmt::Debug for Expression {
         Expression::Group(val) => write!(f, "{:#?}", val),
         Expression::Function(val) => write!(f, "{:#?}", val),
         Expression::Operator(val) => write!(f, "{:#?}", val),
+        Expression::BoolOperator(val) => write!(f, "{:#?}", val),
       }
     } else {
       match self {
@@ -107,6 +112,7 @@ impl fmt::Debug for Expression {
         Expression::Group(val) => write!(f, "{:?}", val),
         Expression::Function(val) => write!(f, "{:?}", val),
         Expression::Operator(val) => write!(f, "{:?}", val),
+        Expression::BoolOperator(val) => write!(f, "{:#?}", val),
       }
     }
   }
@@ -121,6 +127,7 @@ impl fmt::Display for Expression {
       Expression::Group(val) => write!(f, "{}", val),
       Expression::Function(val) => write!(f, "{}", val),
       Expression::Operator(val) => write!(f, "{}", val),
+      Expression::BoolOperator(val) => write!(f, "{}", val),
     }
   }
 }

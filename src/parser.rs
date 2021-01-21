@@ -30,7 +30,14 @@ lazy_static! {
       pcl::Operator::new(Rule::op_modulo, pcl::Assoc::Left),
       pcl::Operator::new(Rule::op_divide, pcl::Assoc::Left),
       pcl::Operator::new(Rule::op_multiply, pcl::Assoc::Left),
-      pcl::Operator::new(Rule::op_power, pcl::Assoc::Right)
+      pcl::Operator::new(Rule::op_power, pcl::Assoc::Right),
+
+      pcl::Operator::new(Rule::op_greater_than_bool, pcl::Assoc::Left),
+      pcl::Operator::new(Rule::op_greater_than_equal_bool, pcl::Assoc::Left),
+      pcl::Operator::new(Rule::op_less_than_bool, pcl::Assoc::Left),
+      pcl::Operator::new(Rule::op_less_than_equal_bool, pcl::Assoc::Left),
+      pcl::Operator::new(Rule::op_not_equal_bool, pcl::Assoc::Left),
+      pcl::Operator::new(Rule::op_equal_bool, pcl::Assoc::Left),
     ]
   );
 }
@@ -298,7 +305,7 @@ impl PrometheusParser {
       Some(name) => name,
       None => return Err(input.error("function name is required"))
     };
-    
+
     Ok(Expression::Function(Function {
       name,
       args,
@@ -376,6 +383,7 @@ impl PrometheusParser {
     let span = Some(Span::from_node(&op));
 
     use Rule::*;
+    let mut is_bool_op = false;
     let kind = match op.as_rule() {
       op_or => OperatorKind::Or,
       op_unless => OperatorKind::Unless,
@@ -392,6 +400,30 @@ impl PrometheusParser {
       op_divide => OperatorKind::Divide,
       op_multiply => OperatorKind::Multiply,
       op_power => OperatorKind::Power,
+      op_greater_than_bool => {
+        is_bool_op = true;
+        OperatorKind::GreaterThan
+      },
+      op_greater_than_equal_bool => {
+        is_bool_op = true;
+        OperatorKind::GreaterThanEqual
+      },
+      op_less_than_bool => {
+        is_bool_op = true;
+        OperatorKind::LessThan
+      },
+      op_less_than_equal_bool =>
+      {is_bool_op = true;
+        OperatorKind::LessThanEqual
+      },
+      op_not_equal_bool => {
+        is_bool_op = true;
+        OperatorKind::NotEqual
+      },
+      op_equal_bool => {
+        is_bool_op = true;
+        OperatorKind::Equal
+      },
       r => return Err(op.error(format!("rule {:?} isn't an operator", r)))
     };
 
@@ -404,15 +436,27 @@ impl PrometheusParser {
       }
     }
 
-    Ok(Expression::Operator(Operator {
-      kind,
-      lhs: Box::new(lhs),
-      rhs: Box::new(rhs),
+    if is_bool_op {
+      Ok(Expression::BoolOperator(BoolOperator {
+        kind,
+        lhs: Box::new(lhs),
+        rhs: Box::new(rhs),
 
-      matching: matching_clause,
+        matching: matching_clause,
 
-      span
-    }))
+        span
+      }))
+    } else {
+      Ok(Expression::Operator(Operator {
+        kind,
+        lhs: Box::new(lhs),
+        rhs: Box::new(rhs),
+
+        matching: matching_clause,
+
+        span
+      }))
+    }
   }
 
   fn expression_term(input: Node) -> Result<Expression> {
