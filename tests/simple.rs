@@ -504,3 +504,43 @@ fn parse_weird_floats() -> Result<()> {
 
   Ok(())
 }
+
+#[test]
+fn parse_scientific_notation_floats() -> Result<()> {
+    match parse_expr("1e1")? {
+      Expression::Float(f) => assert_eq!(f, (1e1 as f64)),
+      _ => assert!(false, "must be a float")
+    };
+
+    match parse_expr("1e-1")? {
+      Expression::Float(f) => assert_eq!(f, (1e-1 as f64)),
+      _ => assert!(false, "must be a float")
+    };
+
+    match parse_expr("-1e1")? {
+      Expression::Float(f) => assert_eq!(f, (-1e1 as f64)),
+      _ => assert!(false, "must be a float")
+    };
+
+    match parse_expr("-1e-1")? {
+      Expression::Float(f) => assert_eq!(f, (-1e-1 as f64)),
+      _ => assert!(false, "must be a float")
+    };
+
+    match parse_expr("1.0e1")? {
+      Expression::Float(f) => assert_eq!(f, (1.0e1 as f64)),
+      _ => assert!(false, "must be a float")
+    };
+
+    match parse_expr("1e01")? {
+      Expression::Float(f) => assert_eq!(f, (1e01 as f64)),
+      _ => assert!(false, "must be a float")
+    };
+
+    match parse_expr("1E01")? {
+      Expression::Float(f) => assert_eq!(f, (1e01 as f64)),
+      _ => assert!(false, "must be a float")
+    };
+
+    Ok(())
+}

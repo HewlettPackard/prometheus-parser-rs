@@ -209,11 +209,11 @@ expression = {
 duration_value = ${ ASCII_DIGIT+ }
 duration_unit = ${ "s" | "m" | "h" | "d" | "w" | "y" }
 
-// allow 1, 1.0, -1, -1.0, .1, -.1 but don't allow empty / '.' / '-' / '-.'
+// allow 1, 1.0, -1, -1.0, .1, -.1, 1e1, -1e1, 1e-1, -1e-1 but don't allow empty / '.' / '-' / '-.'
 signed_float = @{
   ("+" | "-")? ~ (
     ("Inf" | "NaN") |
-    (ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)?) |
+    (ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? ~ (^"e" ~ ("+" | "-")? ~ ASCII_DIGIT+)?) |
     ("." ~ ASCII_DIGIT+)
   )
 }
