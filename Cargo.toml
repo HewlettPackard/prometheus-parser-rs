@@ -19,10 +19,10 @@ circle-ci = { repository = "HewlettPackard/prometheus-parser-rs", branch = "mast
 
 [dependencies]
 pest = "2.1"
-pest_consume = "1.0"
+pest_consume = "1.1"
 pest_derive = "2.1"
-pest_consume_macros = "1.0"
-enquote = "1.0"
+pest_consume_macros = "1.1"
+enquote = "1.1"
 lazy_static = "1"
 
 [dev-dependencies]
