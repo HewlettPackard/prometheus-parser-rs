@@ -116,12 +116,13 @@ matching_expression = {
   matching ~ matching_group?
 }
 
-op_equal = ${ ws_opt ~ "==" ~ ws_opt ~ matching_expression? }
-op_not_equal = ${ ws_opt ~ "!=" ~ ws_opt ~ matching_expression? }
-op_less_than_equal = ${ ws_opt ~ "<=" ~ ws_opt ~ matching_expression? }
-op_greater_than_equal = ${ ws_opt ~ ">=" ~ ws_opt ~ matching_expression? }
-op_less_than = ${ ws_opt ~ "<" ~ ws_opt ~ matching_expression? }
-op_greater_than = ${ ws_opt ~ ">" ~ ws_opt ~ matching_expression? }
+op_bool_opt = _{ ^"bool" }
+op_equal = ${ ws_opt ~ "==" ~ ws_opt ~ op_bool_opt? ~ ws_opt ~ matching_expression? }
+op_not_equal = ${ ws_opt ~ "!=" ~ ws_opt ~ op_bool_opt? ~ ws_opt ~ matching_expression? }
+op_less_than_equal = ${ ws_opt ~ "<=" ~ ws_opt ~ op_bool_opt? ~ ws_opt ~ matching_expression? }
+op_greater_than_equal = ${ ws_opt ~ ">=" ~ ws_opt ~ op_bool_opt? ~ ws_opt ~ matching_expression? }
+op_less_than = ${ ws_opt ~ "<" ~ ws_opt ~ op_bool_opt? ~ ws_opt ~ matching_expression? }
+op_greater_than = ${ ws_opt ~ ">" ~ ws_opt ~ op_bool_opt? ~ ws_opt ~ matching_expression? }
 
 op_power = ${ ws_opt ~ "^" ~ ws_opt ~ matching_expression? }
 op_multiply = ${ ws_opt ~ "*" ~ ws_opt ~ matching_expression? }
