@@ -12,9 +12,12 @@ pub enum OperatorKind {
   Power,
   Multiply, Divide, Modulo,
   Add, Subtract,
-  Equal, NotEqual,
-  LessThan, LessThanEqual,
-  GreaterThan, GreaterThanEqual,
+  Equal, EqualBool,
+  NotEqual, NotEqualBool,
+  LessThan, LessThanBool,
+  LessThanEqual, LessThanEqualBool,
+  GreaterThan, GreaterThanBool,
+  GreaterThanEqual, GreaterThanEqualBool,
   And, Unless, Or
 }
 
@@ -29,11 +32,17 @@ impl OperatorKind {
       Add => "+",
       Subtract => "-",
       Equal => "==",
+      EqualBool => "== bool",
       NotEqual => "!=",
+      NotEqualBool => "!= bool",
       LessThan => "<",
+      LessThanBool => "< bool",
       LessThanEqual => "<=",
+      LessThanEqualBool => "<= bool",
       GreaterThan => ">",
+      GreaterThanBool => "> bool",
       GreaterThanEqual => ">=",
+      GreaterThanEqualBool => ">= bool",
       And => "and",
       Unless => "unless",
       Or => "or"
