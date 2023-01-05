@@ -227,6 +227,65 @@ fn parse_greater_than_equal() -> Result<()> {
 }
 
 #[test]
+fn parse_bool_modifier() -> Result<()> {
+  assert_eq!(
+    parse_expr("this == bool that")?,
+    Operator::new(
+      OperatorKind::EqualBool,
+      Selector::new().metric("this").span((0, 4)).wrap(),
+      Selector::new().metric("that").span((13, 17)).wrap()
+    ).span((4, 13)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("this != bool that")?,
+    Operator::new(
+      OperatorKind::NotEqualBool,
+      Selector::new().metric("this").span((0, 4)).wrap(),
+      Selector::new().metric("that").span((13, 17)).wrap()
+    ).span((4, 13)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("this <= bool that")?,
+    Operator::new(
+      OperatorKind::LessThanEqualBool,
+      Selector::new().metric("this").span((0, 4)).wrap(),
+      Selector::new().metric("that").span((13, 17)).wrap()
+    ).span((4, 13)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("this >= bool that")?,
+    Operator::new(
+      OperatorKind::GreaterThanEqualBool,
+      Selector::new().metric("this").span((0, 4)).wrap(),
+      Selector::new().metric("that").span((13, 17)).wrap()
+    ).span((4, 13)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("this < bool that")?,
+    Operator::new(
+      OperatorKind::LessThanBool,
+      Selector::new().metric("this").span((0, 4)).wrap(),
+      Selector::new().metric("that").span((12, 16)).wrap()
+    ).span((4, 12)).wrap()
+  );
+
+  assert_eq!(
+    parse_expr("this > bool that")?,
+    Operator::new(
+      OperatorKind::GreaterThanBool,
+      Selector::new().metric("this").span((0, 4)).wrap(),
+      Selector::new().metric("that").span((12, 16)).wrap()
+    ).span((4, 12)).wrap()
+  );
+
+  Ok(())
+}
+
+#[test]
 fn parse_and() -> Result<()> {
   assert_eq!(
     parse_expr("this and that")?,
