@@ -231,7 +231,7 @@ fn parse_bool_modifier() -> Result<()> {
   assert_eq!(
     parse_expr("this == bool that")?,
     Operator::new(
-      OperatorKind::Equal,
+      OperatorKind::EqualBool,
       Selector::new().metric("this").span((0, 4)).wrap(),
       Selector::new().metric("that").span((13, 17)).wrap()
     ).span((4, 13)).wrap()
@@ -240,7 +240,7 @@ fn parse_bool_modifier() -> Result<()> {
   assert_eq!(
     parse_expr("this != bool that")?,
     Operator::new(
-      OperatorKind::NotEqual,
+      OperatorKind::NotEqualBool,
       Selector::new().metric("this").span((0, 4)).wrap(),
       Selector::new().metric("that").span((13, 17)).wrap()
     ).span((4, 13)).wrap()
@@ -249,7 +249,7 @@ fn parse_bool_modifier() -> Result<()> {
   assert_eq!(
     parse_expr("this <= bool that")?,
     Operator::new(
-      OperatorKind::LessThanEqual,
+      OperatorKind::LessThanEqualBool,
       Selector::new().metric("this").span((0, 4)).wrap(),
       Selector::new().metric("that").span((13, 17)).wrap()
     ).span((4, 13)).wrap()
@@ -258,7 +258,7 @@ fn parse_bool_modifier() -> Result<()> {
   assert_eq!(
     parse_expr("this >= bool that")?,
     Operator::new(
-      OperatorKind::GreaterThanEqual,
+      OperatorKind::GreaterThanEqualBool,
       Selector::new().metric("this").span((0, 4)).wrap(),
       Selector::new().metric("that").span((13, 17)).wrap()
     ).span((4, 13)).wrap()
@@ -267,7 +267,7 @@ fn parse_bool_modifier() -> Result<()> {
   assert_eq!(
     parse_expr("this < bool that")?,
     Operator::new(
-      OperatorKind::LessThan,
+      OperatorKind::LessThanBool,
       Selector::new().metric("this").span((0, 4)).wrap(),
       Selector::new().metric("that").span((12, 16)).wrap()
     ).span((4, 12)).wrap()
@@ -276,7 +276,7 @@ fn parse_bool_modifier() -> Result<()> {
   assert_eq!(
     parse_expr("this > bool that")?,
     Operator::new(
-      OperatorKind::GreaterThan,
+      OperatorKind::GreaterThanBool,
       Selector::new().metric("this").span((0, 4)).wrap(),
       Selector::new().metric("that").span((12, 16)).wrap()
     ).span((4, 12)).wrap()
