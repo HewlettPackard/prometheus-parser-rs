@@ -1,0 +1,27 @@
+# (c) Copyright 2023 Hewlett Packard Enterprise Development LP
+
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  upload_artifacts:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+      - name: Update Tag
+        shell: bash
+        run: |
+          version=$(echo "$GITHUB_REF" | sed -e 's/^v//')
+          sed -i -e "s/version = \"0.1.0\"/version = \"$version\"/" Cargo.toml
+      - name: Publish
+        run: cargo publish --allow-dirty --locked --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+

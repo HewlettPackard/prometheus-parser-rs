@@ -1,0 +1,23 @@
+# (c) Copyright 2023 Hewlett Packard Enterprise Development LP
+
+name: Rust Checks
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    name: Rust Checks
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+      - name: Rust Format
+        run: cargo fmt --check
+      - name: Clippy
+        run: cargo clippy
+      - name: Test
+        run: cargo test --verbose
