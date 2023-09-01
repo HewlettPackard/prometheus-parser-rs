@@ -1,8 +1,14 @@
 version: 2
 updates:
-- package-ecosystem: cargo
-  open-pull-requests-limit: 25
-  directory: /
-  registries: []
-  schedule:
-    interval: daily
+  - package-ecosystem: cargo
+    open-pull-requests-limit: 25
+    directory: /
+    registries: []
+    schedule:
+      interval: daily
+  - package-ecosystem: github-actions
+    directory: /
+    registries: []
+    schedule:
+      interval: daily
+

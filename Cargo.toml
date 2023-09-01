@@ -7,15 +7,12 @@ license = "MIT"
 keywords = ["parser", "prometheus", "pest"]
 homepage = "https://github.com/HewlettPackard/prometheus-parser-rs/"
 repository = "https://github.com/HewlettPackard/prometheus-parser-rs/"
-exclude = [".circleci/**/*"]
+exclude = [".github/**/*"]
 readme = "README.md"
 
 # NOTE: do not change the version here, it will be replaced with the git tag
 # version by CI
 version = "0.1.0"
-
-[badges]
-circle-ci = { repository = "HewlettPackard/prometheus-parser-rs", branch = "master" }
 
 [dependencies]
 pest = "2.1"

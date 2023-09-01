@@ -1,6 +1,5 @@
 # prometheus-parser-rs
 
-[![CircleCI](https://circleci.com/gh/HewlettPackard/prometheus-parser-rs.svg?style=svg)](https://circleci.com/gh/HewlettPackard/prometheus-parser-rs)
 [![docs.rs](https://docs.rs/prometheus-parser/badge.svg)](https://docs.rs/prometheus-parser/)
 
 prometheus-parser parses arbitrary Prometheus expressions into a syntax tree
@@ -225,7 +224,7 @@ though the [code of conduct] for some pointers to get started.
 
 Note that - as mentioned in the code of conduct - code contributions must
 indicate that you accept the [Developer Certificate of Origin][dco],
-essentially asserting you have the necessary rights to submit the code you're 
+essentially asserting you have the necessary rights to submit the code you're
 contributing under the project's license (MIT). If you agree, simply pass `-s`
 to `git commit`:
 
