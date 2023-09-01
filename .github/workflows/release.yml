@@ -18,7 +18,8 @@ jobs:
       - name: Update Tag
         shell: bash
         run: |
-          version=$(echo "$GITHUB_REF" | sed -e 's/^v//')
+          echo "$GITHUB_REF"
+          version=$(echo "$GITHUB_REF" | sed 's/^v//')
           sed -i -e "s/version = \"0.1.0\"/version = \"$version\"/" Cargo.toml
       - name: Publish
         run: cargo publish --allow-dirty --locked
