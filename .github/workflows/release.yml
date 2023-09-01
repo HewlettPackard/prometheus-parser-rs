@@ -19,7 +19,7 @@ jobs:
         shell: bash
         run: |
           echo "$GITHUB_REF"
-          version=$(echo "$GITHUB_REF" | sed 's/^v//')
+          version=$(echo "$GITHUB_REF" | sed 's/refs\/tags\/v//')
           echo "$version"
           sed -i "s/version = \"0.1.0\"/version = \"$version\"/" Cargo.toml
       - name: Publish
