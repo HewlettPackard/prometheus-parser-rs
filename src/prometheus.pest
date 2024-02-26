@@ -79,7 +79,7 @@ selector_range = @{ ws_opt ~ "[" ~ duration_value ~ duration_unit ~ "]" }
 metric_selector = { selector_metric ~ selector_label? }
 
 offset = ${ duration_value ~ duration_unit }
-offset_clause = _{ ws_req ~ ^"offset" ~ ws_req ~ offset }
+offset_clause = _{ ws_opt ~ ^"offset" ~ ws_req ~ offset }
 
 //
 // operators
@@ -116,12 +116,19 @@ matching_expression = {
   matching ~ matching_group?
 }
 
+op_bool_opt = _{ ^"bool" }
 op_equal = ${ ws_opt ~ "==" ~ ws_opt ~ matching_expression? }
+op_equal_bool = ${ ws_opt ~ "==" ~ ws_opt ~ op_bool_opt ~ ws_opt ~ matching_expression? }
 op_not_equal = ${ ws_opt ~ "!=" ~ ws_opt ~ matching_expression? }
+op_not_equal_bool = ${ ws_opt ~ "!=" ~ ws_opt ~ op_bool_opt ~ ws_opt ~ matching_expression? }
 op_less_than_equal = ${ ws_opt ~ "<=" ~ ws_opt ~ matching_expression? }
+op_less_than_equal_bool = ${ ws_opt ~ "<=" ~ ws_opt ~ op_bool_opt ~ ws_opt ~ matching_expression? }
 op_greater_than_equal = ${ ws_opt ~ ">=" ~ ws_opt ~ matching_expression? }
+op_greater_than_equal_bool = ${ ws_opt ~ ">=" ~ ws_opt ~ op_bool_opt ~ ws_opt ~ matching_expression? }
 op_less_than = ${ ws_opt ~ "<" ~ ws_opt ~ matching_expression? }
+op_less_than_bool = ${ ws_opt ~ "<" ~ ws_opt ~ op_bool_opt ~ ws_opt ~ matching_expression? }
 op_greater_than = ${ ws_opt ~ ">" ~ ws_opt ~ matching_expression? }
+op_greater_than_bool = ${ ws_opt ~ ">" ~ ws_opt ~ op_bool_opt ~ ws_opt ~ matching_expression? }
 
 op_power = ${ ws_opt ~ "^" ~ ws_opt ~ matching_expression? }
 op_multiply = ${ ws_opt ~ "*" ~ ws_opt ~ matching_expression? }
@@ -135,8 +142,12 @@ op_unless = ${ ws_req ~ ^"unless" ~ ws_req ~ matching_expression? }
 op_or = ${ ws_req ~ ^"or" ~ ws_req ~ matching_expression? }
 
 operator = _{
-  op_equal | op_not_equal | op_less_than_equal | op_greater_than_equal |
-  op_less_than | op_greater_than |
+  op_equal_bool | op_equal |
+  op_not_equal_bool | op_not_equal |
+  op_less_than_equal_bool | op_less_than_equal |
+  op_greater_than_equal_bool | op_greater_than_equal |
+  op_less_than_bool | op_less_than |
+  op_greater_than_bool | op_greater_than |
 
   op_power |
   op_multiply | op_divide | op_modulo |
