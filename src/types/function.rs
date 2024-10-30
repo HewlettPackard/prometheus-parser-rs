@@ -372,8 +372,11 @@ impl fmt::Display for Function {
             if i > 0 {
                 write!(f, ", ")?;
             }
-
-            write!(f, "{}", arg)?;
+            if let Expression::String(s) = &**arg {
+                write!(f, "\"{}\"", s)?
+            } else {
+                write!(f, "{}", arg)?
+            };
         }
 
         write!(f, ")")?;
