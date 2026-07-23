@@ -1,4 +1,6 @@
-# prometheus-parser-rs
+# This project has been deprecated and will no longer be updated
+
+## prometheus-parser-rs
 
 [![docs.rs](https://docs.rs/prometheus-parser/badge.svg)](https://docs.rs/prometheus-parser/)
 
